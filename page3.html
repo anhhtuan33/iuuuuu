@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Tay Tình Yêu - PokeLove</title>
+    
+    <!-- Google Fonts: Đủ các loại phông chữ cho bạn lựa chọn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Mali:wght@500;700&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- File CSS riêng -->
+    <link rel="stylesheet" href="style3.css">
+</head>
+<body>
+
+    <!-- Lớp phủ mờ nền -->
+    <div class="bg-overlay"></div>
+
+    <!-- Header / Logo & Nút quay lại -->
+    <header class="top-header">
+        <div class="logo-box">
+            <div class="pokeball-icon"></div>
+            <span class="logo-text">PokeLove <i class="fa-solid fa-heart"></i></span>
+        </div>
+        <a href="page2.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Quay lại Trang 2</a>
+    </header>
+
+    <!-- Nội dung chính: Tờ Note Tình Yêu -->
+    <main class="main-container">
+        
+        <div class="note-card">
+            <!-- Băng dính trang trí -->
+            <div class="washi-tape"></div>
+            
+            <!-- Trái tim trang trí góc card -->
+            <div class="decor-badge top-left-badge"><i class="fa-solid fa-star"></i></div>
+            <div class="decor-badge top-right-badge"><i class="fa-solid fa-heart"></i></div>
+
+            <!-- Tiêu đề tờ Note -->
+            <div class="note-header">
+                <h1 class="note-title">Sổ Tay Tình Yêu <i class="fa-solid fa-heart pulse-heart"></i></h1>
+                <p class="note-subtitle">Góc gửi gắm tâm tư ngọt ngào của Tuấn & Dương</p>
+            </div>
+
+            <!-- THANH ĐIỀU CHỈNH PHÔNG CHỮ & CỠ CHỮ (Giống Word) -->
+            <div class="word-toolbar">
+                <div class="tool-group">
+                    <label for="fontSelect"><i class="fa-solid fa-font"></i> Phông chữ:</label>
+                    <select id="fontSelect" class="tool-select">
+                        <option value="'Dancing Script', cursive">Viết tay lãng mạn (Dancing Script)</option>
+                        <option value="'Mali', cursive">Nét dễ thương (Mali)</option>
+                        <option value="'Nunito', sans-serif">Chữ chuẩn rõ ràng (Nunito)</option>
+                        <option value="'Pacifico', cursive">Nét nghệ thuật (Pacifico)</option>
+                    </select>
+                </div>
+
+                <div class="tool-group">
+                    <label for="sizeSelect"><i class="fa-solid fa-text-height"></i> Cỡ chữ:</label>
+                    <select id="sizeSelect" class="tool-select">
+                        <option value="1.5rem">Nhỏ xinh</option>
+                        <option value="2rem" selected>Vừa vặn</option>
+                        <option value="2.5rem">Hơi lớn</option>
+                        <option value="3rem">Siêu to khổng lồ</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Khung Nhập Lời Nhắn -->
+            <div class="textarea-wrapper">
+                <textarea id="loveNoteInput" class="note-textarea" placeholder="Nhập lời nhắn gửi đến nửa kia ở đây nha... Cả hai cùng ghi và xem được luôn nè! 💕"></textarea>
+            </div>
+
+            <!-- Trạng thái đồng bộ -->
+            <div class="note-footer">
+                <div class="status-box">
+                    <span id="syncStatus"><i class="fa-solid fa-cloud-arrow-up"></i> Đã sẵn sàng kết nối</span>
+                </div>
+                <p class="cute-tag">Made with love <i class="fa-regular fa-heart"></i></p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Thư viện Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        const noteInput = document.getElementById('loveNoteInput');
+        const fontSelect = document.getElementById('fontSelect');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const syncStatus = document.getElementById('syncStatus');
+
+        // Thay đổi phông chữ ngay khi chọn
+        fontSelect.addEventListener('change', () => {
+            noteInput.style.fontFamily = fontSelect.value;
+        });
+
+        // Thay đổi cỡ chữ ngay khi chọn
+        sizeSelect.addEventListener('change', () => {
+            noteInput.style.fontSize = sizeSelect.value;
+        });
+
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            const notesRef = database.ref('tuanduong_love_notes');
+
+            let timeout = null;
+            noteInput.addEventListener('input', () => {
+                syncStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu lời nhắn...';
+                
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    notesRef.set(noteInput.value, (error) => {
+                        if (!error) {
+                            syncStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Đã đồng bộ thành công ❤️';
+                        } else {
+                            syncStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Lỗi kết nối!';
+                        }
+                    });
+                }, 500);
+            });
+
+            notesRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data !== null && noteInput.value !== data) {
+                    noteInput.value = data;
+                    syncStatus.innerHTML = '<i class="fa-solid fa-sparkles"></i> Vừa cập nhật lời nhắn mới!';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
