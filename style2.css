@@ -108,7 +108,7 @@ body {
 }
 
 .main-title {
-    font-family: 'Caveat', cursive;
+    font-family: 'Dancing Script', cursive; /* Đổi sang Dancing Script hỗ trợ tiếng Việt không lỗi dấu */
     font-size: 3rem;
     color: #8c2a4e;
     margin-bottom: 10px;
@@ -254,8 +254,8 @@ body {
 }
 
 .polaroid-card p {
-    font-family: 'Caveat', cursive;
-    font-size: 1.2rem;
+    font-family: 'Dancing Script', cursive; /* Đổi sang Dancing Script hỗ trợ tiếng Việt không lỗi dấu */
+    font-size: 1.3rem;
     text-align: center;
     color: #5a4b5c;
 }
@@ -310,4 +310,41 @@ body {
     .gallery-grid {
         grid-template-columns: 1fr;
     }
+}
+/* --- Nút chuyển sang Page 3 --- */
+.next-page-container {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-next-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, #ff7597, #ff4d6d);
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-decoration: none;
+    border-radius: 50px;
+    box-shadow: 0 8px 25px rgba(255, 77, 109, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid #ffffff;
+}
+
+.btn-next-page:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 30px rgba(255, 77, 109, 0.55);
+    background: linear-gradient(135deg, #ff5e83, #e8335a);
+}
+
+.btn-next-page i.fa-arrow-right {
+    transition: transform 0.3s ease;
+}
+
+.btn-next-page:hover i.fa-arrow-right {
+    transform: translateX(6px);
 }
